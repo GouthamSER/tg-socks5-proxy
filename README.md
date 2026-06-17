@@ -1,5 +1,7 @@
 # tg-socks5-proxy
 
+<b><i>Run In Vps :)</i></b><br>
+
 A minimal SOCKS5 proxy built on [Dante](https://www.inet.no/dante/) (`danted`), intended for use as a Telegram proxy (Settings → Data and Storage → Proxy Settings → SOCKS5) or as an outbound proxy inside your own Telegram bot/userbot code (Pyrogram, Hydrogram, Telethon, etc.).
 
 ## What's in this repo
@@ -20,28 +22,8 @@ The original `Dockerfile` baked a static `external: eth0` line into `danted.conf
 
 The default credentials are `meow` / `meow`. Anyone who finds your host:port can use your proxy and bandwidth if you don't change this. Set your own `PROXY_USER` / `PROXY_PASS` (see below) before exposing this on the internet.
 
----
 
-## Method 1 — Koyeb (recommended for free 24/7 hosting)
-
-Koyeb has a **TCP Proxy** feature, which is what makes a raw SOCKS5 service reachable from outside Koyeb's network.
-
-1. Create a new App on [Koyeb](https://app.koyeb.com/) and connect this repository (or upload these files directly).
-2. Make sure the **Builder** is set to build from the `Dockerfile`.
-3. In the **Ports** section, set the port to `1080`.
-4. Enable **TCP Proxy** for that port (this is the important step — without it, the port behaves like HTTP and SOCKS5 traffic won't pass through).
-5. (Optional) Add environment variables `PROXY_USER`, `PROXY_PASS`, `PROXY_PORT` to override the defaults.
-6. Deploy.
-
-Once the app is "Healthy", Koyeb gives you a public hostname and a separate public TCP port — those go into your Telegram client/bot, not port 1080 itself.
-
-* **Server:** `<your-app-name>.koyeb.app`
-* **Port:** the public TCP port Koyeb assigns (shown in the dashboard)
-* **Username / Password:** whatever you set in `PROXY_USER` / `PROXY_PASS`
-
----
-
-## Method 2 — Plain Linux VPS (Ubuntu/Debian)
+## Method 1 — Plain Linux VPS (Ubuntu/Debian)
 
 For DigitalOcean, Hetzner, AWS, Oracle Cloud, or any VPS with systemd:
 
@@ -61,7 +43,7 @@ The script installs Dante, creates the proxy user, writes the config, opens the 
 
 ---
 
-## Method 3 — Any other Docker host (JustRunMy.App, Render, Railway, Fly.io, your own server, etc.)
+## Method 2 — Any other Docker host (JustRunMy.App, Render, Railway, Fly.io, your own server, etc.)
 
 ```bash
 docker build -t tg-socks5-proxy .
