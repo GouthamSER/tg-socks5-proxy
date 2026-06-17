@@ -43,17 +43,6 @@ The script installs Dante, creates the proxy user, writes the config, opens the 
 
 **Important caveat:** SOCKS5 is a raw TCP protocol, not HTTP. Many beginner-friendly PaaS platforms (Render's Web Services, and JustRunMy.App's standard port mapping at the time of writing) only forward **HTTP/HTTPS** traffic on the public port they give you — a raw TCP SOCKS5 connection won't get through even though the container is running fine internally. Before relying on one of these for public access, check the provider's docs for an explicit "TCP proxy" / "raw TCP port" option. If that's not available, use Koyeb's TCP Proxy or a plain VPS instead — both are confirmed to support raw TCP.
 
----
-
-## Environment variables (Docker / Koyeb / JustRunMy.App)
-
-| Variable | Default | Description |
-|---|---|---|
-| `PROXY_USER` | `meow` | SOCKS5 username |
-| `PROXY_PASS` | `meow` | SOCKS5 password |
-| `PROXY_PORT` | `1080` | Port `danted` listens on inside the container |
-
----
 
 ## Connecting Telegram to the proxy
 
@@ -79,8 +68,3 @@ curl -x socks5://myuser:mypassword@your-host:1080 https://ifconfig.me
 
 If this returns an IP address, the proxy is working.
 
-## Troubleshooting
-
-* **`ioctl: SIOCGIFINDEX: No such device`** — the interface name danted was told to use doesn't exist on that host. This is fixed by `entrypoint.sh` in this version (it auto-detects the interface); make sure you're running the updated `Dockerfile`/`entrypoint.sh` together, not mixing the old `Dockerfile` with the new files.
-* **Connection refused from outside** — on Koyeb, confirm **TCP Proxy** is enabled on the port; on Render/JustRunMy.App, confirm the platform actually forwards raw TCP (see Method 3 caveat above).
-* **Authentication failed in Telegram** — double-check `PROXY_USER`/`PROXY_PASS` match exactly what you set as environment variables (they're case-sensitive).
