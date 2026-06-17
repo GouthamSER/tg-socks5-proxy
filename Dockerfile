@@ -1,32 +1,24 @@
 FROM debian:bullseye-slim
 
-# Install Dante SOCKS5 server
-RUN apt-get update && apt-get install -y dante-server && rm -rf /var/lib/apt/lists/*
+# dante-server  -> the SOCKS5 daemon (danted)
+# iproute2      -> provides `ip`, used by entrypoint.sh to detect the real
+#                  network interface at container start (fixes builds that
+#                  hardcoded "eth0", which doesn't always exist on
+#                  Koyeb/Render/JustRunMy.App/other container runtimes)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends dante-server iproute2 && \
+    rm -rf /var/lib/apt/lists/*
 
-# Create the proxy user (User: meow, Pass: meow)
-RUN useradd -r -s /usr/sbin/nologin meow && echo "meow:meow" | chpasswd
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-# Write the Dante configuration file dynamically
-RUN echo 'logoutput: stderr \n\
-user.privileged: root \n\
-user.unprivileged: nobody \n\
-internal: 0.0.0.0 port = 1080 \n\
-external: eth0 \n\
-socksmethod: username \n\
-clientmethod: none \n\
-client pass { \n\
-    from: 0.0.0.0/0 to: 0.0.0.0/0 \n\
-    log: connect disconnect \n\
-} \n\
-socks pass { \n\
-    from: 0.0.0.0/0 to: 0.0.0.0/0 \n\
-    socksmethod: username \n\
-    log: connect disconnect \n\
-}' > /etc/danted.conf
+# Default credentials/port — override these from your host's dashboard
+# (Koyeb/Render/JustRunMy.App env var settings) or with `docker run -e`.
+# Change the default password before deploying anywhere public.
+ENV PROXY_USER=meow \
+    PROXY_PASS=meow \
+    PROXY_PORT=1080
 
-# Expose SOCKS5 Port
 EXPOSE 1080
 
-# Start Dante in the foreground
-CMD ["danted", "-f", "/etc/danted.conf"]
-
+ENTRYPOINT ["/entrypoint.sh"]
