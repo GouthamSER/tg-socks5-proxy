@@ -1,4 +1,4 @@
-# Telegram SOCKS5 Proxy (Dante)
+# tg-socks5-proxy
 
 A minimal SOCKS5 proxy built on [Dante](https://www.inet.no/dante/) (`danted`), intended for use as a Telegram proxy (Settings → Data and Storage → Proxy Settings → SOCKS5) or as an outbound proxy inside your own Telegram bot/userbot code (Pyrogram, Hydrogram, Telethon, etc.).
 
@@ -46,8 +46,8 @@ Once the app is "Healthy", Koyeb gives you a public hostname and a separate publ
 For DigitalOcean, Hetzner, AWS, Oracle Cloud, or any VPS with systemd:
 
 ```bash
-git clone <your-repo-url>
-cd <your-repo-folder>
+git clone https://github.com/GouthamSER/tg-socks5-proxy
+cd tg-socks5-proxy
 chmod +x start.sh
 
 # defaults (meow/meow, port 1080)
