@@ -1,19 +1,32 @@
-# SOCKS5 Proxy Setup — dante-server
-# User: meow | Pass: meow | Port: 1080
-# Run as root or with sudo
-
+#!/bin/bash
+# SOCKS5 Proxy Setup — dante-server (for a Linux VPS: Ubuntu/Debian)
+#
+# Usage:
+#   sudo bash start.sh [username] [password] [port]
+#   sudo PROXY_USER=foo PROXY_PASS=bar PROXY_PORT=1080 bash start.sh
+#
+# Defaults to User: meow | Pass: meow | Port: 1080 if nothing is supplied.
 set -e
 
-PROXY_USER="meow"
-PROXY_PASS="meow"
-PROXY_PORT="1080"
+if [ "$(id -u)" -ne 0 ]; then
+    echo "[!] This script must be run as root (use: sudo bash start.sh)"
+    exit 1
+fi
+
+PROXY_USER="${1:-${PROXY_USER:-meow}}"
+PROXY_PASS="${2:-${PROXY_PASS:-meow}}"
+PROXY_PORT="${3:-${PROXY_PORT:-1080}}"
 
 echo "[*] Detecting network interface..."
-IFACE=$(ip route | grep default | awk '{print $5}' | head -n1)
+IFACE=$(ip route | awk '/^default/ {print $5; exit}')
+if [ -z "$IFACE" ]; then
+    IFACE=$(ip -o link show | awk -F': ' '$2 != "lo" {print $2; exit}')
+fi
 echo "[*] Using interface: $IFACE"
 
+export DEBIAN_FRONTEND=noninteractive
 echo "[*] Installing dante-server..."
-apt update -qq && apt install -y dante-server
+apt-get update -qq && apt-get install -y -qq dante-server
 
 echo "[*] Creating proxy user: $PROXY_USER"
 if id "$PROXY_USER" &>/dev/null; then
